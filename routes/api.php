@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 // ── Public (Unauthenticated) ────────────────────────────────────────────
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
 
 // ── Authenticated ───────────────────────────────────────────────────────
 Route::middleware('auth:sanctum')->group(function () {
@@ -47,8 +47,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/users', [AdminUserController::class, 'store']);
 
         // Material Management
-        Route::post('/materials', [AdminMaterialController::class, 'store']);
-        Route::post('/materials/{id}/generate-questions', [AdminMaterialController::class, 'generateQuestions']);
+        Route::post('/materials', [AdminMaterialController::class, 'store'])->middleware('throttle:ai.generate');
+        Route::post('/materials/{id}/generate-questions', [AdminMaterialController::class, 'generateQuestions'])->middleware('throttle:ai.generate');
 
         // Analytics & Reports
         Route::get('/dashboard', [ReportController::class, 'dashboard']);

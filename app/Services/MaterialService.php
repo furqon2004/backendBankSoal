@@ -39,7 +39,7 @@ class MaterialService
     }
 
     /**
-     * Create a new material and auto-generate questions via AI.
+     * Create a new material and auto-generate questions via AI in the background.
      */
     public function create(array $data, User $admin): array
     {
@@ -52,38 +52,23 @@ class MaterialService
                 'is_active' => $data['is_active'] ?? true,
             ]);
 
-            $questionsGenerated = 0;
-            $aiError = null;
-
-            try {
-                $count = $data['question_count'] ?? null;
-                $questionsData = $this->aiService->generateQuestions(
-                    $material->content,
-                    $material->title,
-                    $count
-                );
-
-                $this->saveQuestions($material, $questionsData);
-                $questionsGenerated = count($questionsData);
-
-            } catch (Exception $e) {
-                Log::error('AI question generation failed for material #' . $material->id . ': ' . $e->getMessage());
-                $aiError = $e->getMessage();
-            }
+            // Dispatch background job instead of waiting 20s for AI to respond
+            $count = $data['question_count'] ?? null;
+            \App\Jobs\GenerateAiQuestionsJob::dispatch($material->id, $count);
 
             $material->load('questions');
             $material->loadCount('questions');
 
             return [
                 'material' => $material,
-                'questions_generated' => $questionsGenerated,
-                'ai_error' => $aiError,
+                'questions_generated' => 'In progress (Background task started)',
+                'ai_error' => null,
             ];
         });
     }
 
     /**
-     * Regenerate questions for an existing material using AI.
+     * Regenerate questions for an existing material using AI in background.
      */
     public function regenerateQuestions(int $materialId, ?int $count = null): array
     {
@@ -92,33 +77,16 @@ class MaterialService
         // Delete existing questions
         $material->questions()->delete();
 
-        try {
-            $questionsData = $this->aiService->generateQuestions(
-                $material->content,
-                $material->title,
-                $count
-            );
+        \App\Jobs\GenerateAiQuestionsJob::dispatch($material->id, $count);
 
-            $this->saveQuestions($material, $questionsData);
+        $material->load('questions');
+        $material->loadCount('questions');
 
-            $material->load('questions');
-            $material->loadCount('questions');
-
-            return [
-                'material' => $material,
-                'questions_generated' => count($questionsData),
-                'ai_error' => null,
-            ];
-
-        } catch (Exception $e) {
-            Log::error('AI question regeneration failed for material #' . $materialId . ': ' . $e->getMessage());
-
-            return [
-                'material' => $material,
-                'questions_generated' => 0,
-                'ai_error' => $e->getMessage(),
-            ];
-        }
+        return [
+            'material' => $material,
+            'questions_generated' => 'In progress (Background task started)',
+            'ai_error' => null,
+        ];
     }
 
     /**

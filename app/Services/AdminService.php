@@ -15,16 +15,18 @@ class AdminService
      */
     public function dashboardStats(): array
     {
-        return [
-            'total_users' => User::where('role', 'user')->count(),
-            'total_admins' => User::where('role', 'admin')->count(),
-            'total_materials' => Material::count(),
-            'active_materials' => Material::active()->count(),
-            'total_questions' => DB::table('questions')->count(),
-            'total_attempts' => QuizAttempt::where('status', 'completed')->count(),
-            'average_score' => round(QuizAttempt::where('status', 'completed')->avg('score') ?? 0, 2),
-            'in_progress_attempts' => QuizAttempt::where('status', 'in_progress')->count(),
-        ];
+        return \Illuminate\Support\Facades\Cache::remember('admin_dashboard_stats', 300, function () {
+            return [
+                'total_users' => User::where('role', 'user')->count(),
+                'total_admins' => User::where('role', 'admin')->count(),
+                'total_materials' => Material::count(),
+                'active_materials' => Material::active()->count(),
+                'total_questions' => DB::table('questions')->count(),
+                'total_attempts' => QuizAttempt::where('status', 'completed')->count(),
+                'average_score' => round(QuizAttempt::where('status', 'completed')->avg('score') ?? 0, 2),
+                'in_progress_attempts' => QuizAttempt::where('status', 'in_progress')->count(),
+            ];
+        });
     }
 
     /**
