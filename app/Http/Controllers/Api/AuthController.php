@@ -65,6 +65,25 @@ class AuthController extends Controller
     }
 
     /**
+     * Refresh the current access token.
+     * The old token will be revoked, and a new one generated.
+     */
+    public function refresh(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        
+        // Revoke the current token that was used to authenticate this request
+        $user->currentAccessToken()->delete();
+        
+        // Issue a new token
+        $newToken = $user->createToken('auth_token')->plainTextToken;
+
+        return $this->success([
+            'token' => $newToken,
+        ], 'Token refreshed successfully');
+    }
+
+    /**
      * Logout (revoke current token).
      */
     public function logout(Request $request): JsonResponse
