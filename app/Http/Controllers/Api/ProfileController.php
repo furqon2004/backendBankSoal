@@ -33,9 +33,28 @@ class ProfileController extends Controller
             'lowest_score' => round($completedAttempts->min('score') ?? 0, 2),
         ];
 
+        // Ambil 5 riwayat pengerjaan terakhir untuk ditampilkan di dashboard
+        $recentHistory = QuizAttempt::where('user_id', $user->id)
+            ->with('material:id,title')
+            ->latest('submitted_at')
+            ->take(5)
+            ->get()
+            ->map(function ($attempt) {
+                return [
+                    'id' => $attempt->id,
+                    'material_title' => $attempt->material->title ?? 'Unknown',
+                    'score' => $attempt->score,
+                    'total_questions' => $attempt->total_questions,
+                    'correct_answers' => $attempt->correct_answers,
+                    'status' => $attempt->status,
+                    'submitted_at' => $attempt->submitted_at?->toDateTimeString(),
+                ];
+            });
+
         return $this->success([
             'user' => new UserResource($user),
             'statistics' => $stats,
+            'recent_history' => $recentHistory, // List riwayat pengerjaan untuk dashboard
         ], 'Profile retrieved successfully');
     }
 
