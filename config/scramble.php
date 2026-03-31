@@ -132,7 +132,7 @@ return [
 
     'middleware' => [
         // 'web',
-        'auth:sanctum',
+        // 'auth:sanctum',
     ],
 
     'extensions' => [],
