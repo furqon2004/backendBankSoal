@@ -32,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Materials (user-facing)
     Route::get('/materials', [MaterialController::class, 'index']);
     Route::get('/materials/{id}', [MaterialController::class, 'show']);
+    Route::get('/materials/{id}/questions-by-section', [MaterialController::class, 'questionsBySection']);
 
     // Quiz
     Route::post('/quiz/start', [QuizController::class, 'start']);
@@ -49,6 +50,8 @@ Route::middleware('auth:sanctum')->group(function () {
         // Material Management
         Route::post('/materials', [AdminMaterialController::class, 'store'])->middleware('throttle:ai.generate');
         Route::post('/materials/{id}/generate-questions', [AdminMaterialController::class, 'generateQuestions'])->middleware('throttle:ai.generate');
+        Route::get('/materials/{id}/media', [AdminMaterialController::class, 'media']);
+        Route::get('/materials/{id}/questions-by-section', [AdminMaterialController::class, 'questionsBySection']);
 
         // Analytics & Reports
         Route::get('/dashboard', [ReportController::class, 'dashboard']);

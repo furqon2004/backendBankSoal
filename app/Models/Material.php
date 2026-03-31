@@ -20,6 +20,9 @@ class Material extends Model
         'created_by',
         'attempt_limit',
         'is_active',
+        'pdf_path',
+        'has_audio',
+        'media_extracted',
     ];
 
     protected function casts(): array
@@ -27,6 +30,8 @@ class Material extends Model
         return [
             'is_active' => 'boolean',
             'attempt_limit' => 'integer',
+            'has_audio' => 'boolean',
+            'media_extracted' => 'boolean',
         ];
     }
 
@@ -60,5 +65,29 @@ class Material extends Model
     public function quizAttempts(): HasMany
     {
         return $this->hasMany(QuizAttempt::class);
+    }
+
+    /**
+     * Media (images & audio) extracted from the material's PDF.
+     */
+    public function media(): HasMany
+    {
+        return $this->hasMany(MaterialMedia::class);
+    }
+
+    /**
+     * Scope: only images media.
+     */
+    public function images(): HasMany
+    {
+        return $this->hasMany(MaterialMedia::class)->where('type', 'image')->orderBy('order');
+    }
+
+    /**
+     * Scope: only audio media.
+     */
+    public function audios(): HasMany
+    {
+        return $this->hasMany(MaterialMedia::class)->where('type', 'audio')->orderBy('order');
     }
 }

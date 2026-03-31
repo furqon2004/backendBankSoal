@@ -42,4 +42,21 @@ class MaterialController extends Controller
             'Material retrieved successfully'
         );
     }
+
+    /**
+     * Get questions for a material, grouped by section.
+     */
+    public function questionsBySection(int $id): JsonResponse
+    {
+        $sections = $this->materialService->getQuestionsBySection($id);
+
+        $totalQuestions = collect($sections)->sum('questions_count');
+
+        return $this->success([
+            'material_id'     => $id,
+            'total_questions' => $totalQuestions,
+            'sections_count'  => count($sections),
+            'sections'        => $sections,
+        ], 'Questions by section retrieved successfully');
+    }
 }

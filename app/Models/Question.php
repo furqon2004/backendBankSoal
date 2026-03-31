@@ -15,6 +15,8 @@ class Question extends Model
 
     protected $fillable = [
         'material_id',
+        'section',
+        'section_label',
         'question_text',
         'option_a',
         'option_b',
@@ -22,7 +24,18 @@ class Question extends Model
         'option_d',
         'correct_answer',
         'explanation',
+        'image_url',
+        'audio_url',
+        'item_number',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'section' => 'integer',
+            'item_number' => 'integer',
+        ];
+    }
 
     /**
      * The material this question belongs to.
