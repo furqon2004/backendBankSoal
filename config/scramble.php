@@ -131,7 +131,7 @@ return [
     'flatten_deep_query_parameters' => true,
 
     'middleware' => [
-        'web',
+        // 'web',
         'auth:sanctum',
     ],
 
