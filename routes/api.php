@@ -51,6 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/materials', [AdminMaterialController::class, 'store'])->middleware('throttle:ai.generate');
         Route::post('/materials/{id}/generate-questions', [AdminMaterialController::class, 'generateQuestions'])->middleware('throttle:ai.generate');
         Route::get('/materials/{id}/media', [AdminMaterialController::class, 'media']);
+        Route::get('/materials', [AdminMaterialController::class, 'index']);
         Route::get('/materials/{id}/questions-by-section', [AdminMaterialController::class, 'questionsBySection']);
 
         // Analytics & Reports

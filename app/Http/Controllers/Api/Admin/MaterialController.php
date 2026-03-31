@@ -23,6 +23,14 @@ class MaterialController extends Controller
      * Create a new material (PDF or text).
      * AI auto-generates 23–32 structured sectioned questions in background.
      */
+    public function index(): JsonResponse
+    {
+        return $this->success(
+            \App\Models\Material::latest()->get(),
+            'Materials retrieved'
+        );
+    }
+    
     public function store(StoreMaterialRequest $request): JsonResponse
     {
         $data = $request->validated();

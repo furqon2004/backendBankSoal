@@ -44,4 +44,17 @@ class StoreMaterialRequest extends FormRequest
             'data'    => $validator->errors(),
         ], 422));
     }
+    protected function prepareForValidation()
+    {
+        if ($this->content === '') {
+            $this->merge([
+                'content' => [
+                'nullable',
+                'string',
+                'min:50',
+                'required_without:pdf'
+                ],
+            ]);
+        }   
+    }
 }
